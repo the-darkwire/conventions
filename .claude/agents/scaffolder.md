@@ -1,6 +1,6 @@
 ---
 name: scaffolder
-description: Sets up a new the-darkwire repo from a chosen scaffolding template. Each template type (e.g. Discord bot, REST backend, mobile app, library) is backed by a `templates/<type>/` directory in the-darkwire/conventions. Currently the only implemented template is `discord-bot`; other types decline until their template lands. The agent composes root canon (biome.json, tsconfig.base.json, .nvmrc, etc.) with the chosen template, substitutes placeholders, runs install + validations, and produces an initial commit.
+description: Sets up a new the-darkwire repo from a chosen scaffolding template. Each template type (e.g. Discord bot, full-stack Elysia app, REST backend, mobile app, library) is backed by a `templates/<type>/` directory in the-darkwire/conventions. Currently `discord-bot` and `elysia-stack` are implemented; other types decline until their template lands. The agent composes root canon (biome.json, tsconfig.base.json, etc.) with the chosen template, substitutes placeholders, runs `pnpm install` + validations, and produces an initial commit.
 tools: Bash, Read, Write, Edit, Grep
 ---
 
@@ -22,11 +22,16 @@ When invoked, scaffolder picks the appropriate `templates/<type>/` and composes 
 
 Discover available types by listing `templates/` in the conventions repo. As of today:
 
-| Type          | Status        | Notes                                                       |
-|---------------|---------------|-------------------------------------------------------------|
-| `discord-bot` | **available** | Discord bot. Stack: discord.js + tsx + Docker + SSH deploy. |
+| Type            | Status        | Runtime          | Notes                                                                                                                                            |
+|-----------------|---------------|------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| `discord-bot`   | **available** | Node + tsx       | Discord bot. Stack: discord.js + Docker + SSH deploy.                                                                                            |
+| `elysia-stack`  | **available** | Bun (api) + Node (web) | Full-stack monorepo (`apps/api/` Elysia + `apps/web/` React+Vite). Eden treaty for type-safe RPC. Bun is the runtime *only* for the api; **pnpm is still the package manager**. |
 
-Future types (e.g. `slack-bot`, `api`, `mobile`, `lib`) will be added as the org builds and validates the first production instance of each stack.
+All templates use **pnpm** as the package manager, **Vitest** as the test runner, and **Biome** for lint/format (org-wide standards). Templates differ in which JS runtime executes the code (tsx vs Bun) and in single-purpose vs monorepo layout.
+
+Future types (e.g. `slack-bot`, `react-native`, `api`, `lib`) will be added as the org builds and validates the first production instance of each stack.
+
+**`elysia-stack` is a monorepo** (multi-app workspace), unlike `discord-bot` which is a single-purpose repo. It requires both `pnpm` and `bun` installed locally; the scaffolder should check for both before starting.
 
 ## Adding a new template type (out of scope for the agent — for human implementers)
 
@@ -48,10 +53,14 @@ This agent does **not** invent new templates. If a user asks for a type that isn
    - **One-line description** (used in `package.json`, `README.md`, `CLAUDE.md`).
    - **Target directory**: where to scaffold. Default to `../<name>` relative to current dir, but confirm. Must not exist or must be empty.
 
-2. **Locate the conventions canon**:
+2. **Locate the conventions canon and verify tooling**:
    - If `the-darkwire/conventions` is checked out as a sibling at `../conventions`, use that (freshest).
    - Otherwise clone it: `gh repo clone the-darkwire/conventions /tmp/conventions` (or `git clone https://github.com/the-darkwire/conventions /tmp/conventions`).
    - Confirm the requested template exists at `<conventions>/templates/<type>/`. If not, decline (per §Supported template types).
+   - Verify required tooling is installed:
+     - All templates: `pnpm --version` (org-wide standard; install via `brew install pnpm` if missing)
+     - `elysia-stack`: also `bun --version` (api runtime; install via `brew install bun` if missing)
+   - If a required tool is missing, surface the install command and stop — don't install on the user's behalf.
 
 3. **Verify target is clean**:
    - If the dir doesn't exist, `mkdir -p <target>`.

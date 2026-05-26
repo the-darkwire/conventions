@@ -1,0 +1,37 @@
+name: deploy-api
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/api/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "biome.json"
+      - "tsconfig.base.json"
+      - ".github/workflows/deploy-api.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-api
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH into droplet and redeploy
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: root
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            cd /root/{{name}}
+            git fetch --prune origin
+            git reset --hard origin/main
+            cd apps/api
+            docker compose up -d --build
+            docker image prune -f

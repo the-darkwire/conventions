@@ -20,11 +20,16 @@ The repo is structured in three layers:
 
 Each subdirectory is a complete drop-in scaffold for a specific project type, using `{{name}}` and `{{description}}` placeholders. The `scaffolder` agent composes the root canon with the chosen template, substitutes placeholders, and validates.
 
-| Template       | Status        | Notes                                                       |
-|----------------|---------------|-------------------------------------------------------------|
-| `discord-bot`  | **available** | Discord bot. Stack: discord.js + tsx + Docker + SSH deploy. |
+| Template       | Status        | Runtime                | Notes                                                                                                                                            |
+|----------------|---------------|------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| `discord-bot`  | **available** | Node + tsx             | Discord bot. Stack: discord.js + Docker + SSH deploy.                                                                                            |
+| `elysia-stack` | **available** | Bun (api) + Node (web) | Full-stack monorepo (`apps/api/` Elysia + `apps/web/` React+Vite). Eden treaty for type-safe RPC. Bun is the api runtime only; **pnpm is still the package manager**. |
 
-The org's policy is **build first, template second**: don't scaffold a stack you haven't validated in production. Future templates (e.g. `slack-bot`, `api`, `mobile`, `lib`) will land here once the first instance of each is running.
+All templates use **pnpm** as the package manager, **Vitest** as the test runner, and **Biome** for lint/format. Templates differ in which JS runtime executes the code (tsx vs Bun) and in single-purpose vs monorepo layout.
+
+The org's policy is **build first, template second**: don't scaffold a stack you haven't validated in production. Future templates (e.g. `slack-bot`, `react-native`, `api`, `lib`) will land here once the first instance of each is running.
+
+`elysia-stack` is a monorepo — multiple apps in a single repo under `apps/*`. The other templates are single-purpose single-app repos.
 
 ### Shared Claude Code agents — `.claude/agents/`
 

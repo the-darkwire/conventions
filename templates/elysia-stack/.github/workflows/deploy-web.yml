@@ -1,0 +1,51 @@
+name: deploy-web
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/web/**"
+      - "apps/api/**" # web's type imports come from the api workspace
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "biome.json"
+      - "tsconfig.base.json"
+      - ".github/workflows/deploy-web.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-web
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter=@{{name}}/web build
+
+      # TODO: deploy apps/web/dist to your chosen static host. Examples:
+      #
+      # Cloudflare Pages:
+      #   - uses: cloudflare/pages-action@v1
+      #     with:
+      #       apiToken: ${{ secrets.CF_API_TOKEN }}
+      #       accountId: ${{ secrets.CF_ACCOUNT_ID }}
+      #       projectName: {{name}}
+      #       directory: apps/web/dist
+      #
+      # Vercel (prebuilt):
+      #   - run: |
+      #       npm i -g vercel
+      #       vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+      #
+      # AWS S3 + CloudFront invalidation:
+      #   - run: aws s3 sync apps/web/dist s3://your-bucket/ --delete
+      #   - run: aws cloudfront create-invalidation --distribution-id ABC --paths "/*"

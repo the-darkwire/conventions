@@ -1,0 +1,27 @@
+{
+  "name": "{{name}}",
+  "private": true,
+  "type": "module",
+  "description": "{{description}}",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "dev:api": "pnpm --filter=@{{name}}/api dev",
+    "dev:web": "pnpm --filter=@{{name}}/web dev",
+    "start:api": "pnpm --filter=@{{name}}/api start",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
+    "test": "pnpm -r test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.0",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "pnpm": ">=10"
+  },
+  "packageManager": "pnpm@11.3.0"
+}
