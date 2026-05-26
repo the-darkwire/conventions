@@ -1,0 +1,16 @@
+# Per-repo pnpm settings file. Despite the name, this is used in non-workspace
+# repos too — pnpm 11 moved settings out of package.json into here.
+#
+# Add postinstall scripts you trust to `allowBuilds`. Without an entry, pnpm
+# refuses to run the script and warns ERR_PNPM_IGNORED_BUILDS during install.
+#
+# Common entries:
+#   esbuild         — required by tsx, vitest (native binary postinstall)
+#   ffmpeg-static   — Discord bots that play audio
+#   sharp           — image-processing libs
+#   bcrypt          — backends using node-bcrypt
+#   better-sqlite3  — backends using sqlite
+
+allowBuilds:
+  esbuild: true
+  # ffmpeg-static: true
